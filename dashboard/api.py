@@ -6,6 +6,7 @@ from typing import Optional, List, Any, Dict, Union
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, PlainTextResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from ai_soc.config.settings import get_settings
@@ -22,6 +23,14 @@ app = FastAPI(
     title="AI Cyberthreat Hunting & Autonomous SOC",
     description="Semi-Autonomous Mini-SOC with SIEM, IDS, Threat Intel, AI Investigation, Risk Scoring, and Automated Response.",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Active WebSocket connections
