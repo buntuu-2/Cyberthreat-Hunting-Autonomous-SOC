@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-10-15T00:35:10.512391+0000",
+  "event_type": "alert",
+  "src_ip": "185.220.101.5",
+  "src_port": 41209,
+  "dest_ip": "192.168.1.100",
+  "dest_port": 443,
+  "proto": "TCP",
+  "alert": {
+    "signature": "ET CURRENT_EVENTS Tor Exit Node Traffic Detected Inbound",
+    "signature_id": 2024891,
+    "category": "Potentially Bad Traffic",
+    "severity": 1
+  }
+}

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Cyberthreat Hunting & Autonomous SOC | Security Operations Center</title>
+  <meta name="description" content="Semi-autonomous AI Cyberthreat Hunting and Autonomous SOC platform with Wazuh SIEM, Suricata IDS, Threat Intelligence, and Deterministic Risk Engine.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="soc-header">
+    <div class="brand-section">
+      <div class="brand-logo" id="brand-logo-icon">🛡️</div>
+      <div class="brand-title">
+        <h1>AI CYBERTHREAT HUNTING & AUTONOMOUS SOC</h1>
+        <p>Final Year Major Project — Utkarsh Maurya & Prince Maurya | School of Management Sciences, Lucknow</p>
+      </div>
+    </div>
+
+    <div class="system-telemetry">
+      <div class="telemetry-badge" id="badge-ws-status">
+        <span class="status-dot dot-green" id="ws-indicator"></span>
+        <span id="ws-text">LIVE TELEMETRY</span>
+      </div>
+      <div class="telemetry-badge" id="badge-defense-mode">
+        <span class="status-dot dot-blue"></span>
+        <span id="defense-mode-text">SEMI-AUTONOMOUS [ACTIVE]</span>
+      </div>
+      <button class="btn-header" id="btn-firewall-manager">
+        <span>🔥</span> Firewall Rules (<span id="header-block-count">0</span>)
+      </button>
+      <button class="btn-header" id="btn-open-ingest">
+        <span>📥</span> Ingest Event
+      </button>
+      <button class="btn-header" id="btn-open-viva">
+        <span>🎓</span> Viva Defense Guide
+      </button>
+    </div>
+  </header>
+
+  <!-- KPI Metric Overview Cards -->
+  <section class="kpi-container" aria-label="Security Metrics Summary">
+    <div class="kpi-card kpi-total">
+      <div class="kpi-title">Total Incidents</div>
+      <div class="kpi-value" id="kpi-total-val">0</div>
+    </div>
+    <div class="kpi-card kpi-crit">
+      <div class="kpi-title">Critical Threats</div>
+      <div class="kpi-value" id="kpi-crit-val">0</div>
+    </div>
+    <div class="kpi-card kpi-high">
+      <div class="kpi-title">High Severity Alerts</div>
+      <div class="kpi-value" id="kpi-high-val">0</div>
+    </div>
+    <div class="kpi-card kpi-blocks">
+      <div class="kpi-title">Active UFW Blocks</div>
+      <div class="kpi-value" id="kpi-blocks-val">0</div>
+    </div>
+    <div class="kpi-card kpi-ai">
+      <div class="kpi-title">AI Advisory Engine</div>
+      <div class="kpi-value" id="kpi-ai-val" style="font-size:1.15rem; margin-top:6px;">ONLINE (TIER-2)</div>
+    </div>
+  </section>
+
+  <!-- Attack Simulator Action Bar (Roadmap Section 7) -->
+  <section class="action-strip" aria-label="Attack Simulator Deck">
+    <div class="sim-group">
+      <span class="sim-label">⚡ Controlled Attack Simulator:</span>
+      <button class="btn-sim btn-sim-a" id="btn-sim-a" title="Simulate multi-attempt SSH brute-force attack from 198.51.100.42 targeting root">
+        <span>🔴</span> Workflow A: SSH Brute-Force
+      </button>
+      <button class="btn-sim btn-sim-b" id="btn-sim-b" title="Simulate Suricata IDS detecting Nmap SYN port scan from 45.33.32.156">
+        <span>🟠</span> Workflow B: Suricata Port Scan
+      </button>
+      <button class="btn-sim btn-sim-c" id="btn-sim-c" title="Simulate Tor Exit Node inbound probe indicator enrichment">
+        <span>🟢</span> Workflow C: Threat Intel Query
+      </button>
+      <button class="btn-sim" id="btn-sim-d" title="Simulate accepted password authentication immediately after repeated failures">
+        <span>⚡</span> Workflow D: Credential Compromise
+      </button>
+    </div>
+
+    <div class="sim-group">
+      <button class="btn-sim" id="btn-refresh-feed" style="background:#1e293b;">
+        <span>🔄</span> Refresh
+      </button>
+    </div>
+  </section>
+
+  <!-- Main SOC Workspace Grid -->
+  <main class="soc-workspace">
+    
+    <!-- Left Column: Real-time Incident Feed -->
+    <aside class="feed-column" aria-label="Live Incident Feed">
+      <div class="feed-header">
+        <div class="feed-title-row">
+          <div class="feed-title">
+            <span>📡</span> Live Security Feed
+          </div>
+          <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);" id="incident-count-display">0 events</span>
+        </div>
+        <div class="feed-filter-bar">
+          <input type="text" id="feed-search-input" class="feed-search" placeholder="Search IP, user, rule...">
+          <select id="feed-severity-select" class="feed-filter-select">
+            <option value="">All Severities</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="incident-list" id="incident-list-container">
+        <!-- Dynamically rendered incident cards -->
+        <div style="padding:40px 20px; text-align:center; color:var(--text-muted);">
+          <div style="font-size:2rem; margin-bottom:10px;">🛡️</div>
+          <div>Listening for incoming telemetry...</div>
+          <div style="font-size:0.78rem; margin-top:6px;">Click any simulation workflow above to generate live test events.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Column: Deep Incident Investigation Workbench -->
+    <section class="workbench-column" id="workbench-container" aria-label="Incident Investigation Workbench">
+      <div id="empty-workbench-state" style="padding:100px 20px; text-align:center; color:var(--text-muted);">
+        <div style="font-size:3rem; margin-bottom:14px;">🔍</div>
+        <h3 style="color:var(--text-secondary); margin-bottom:8px;">No Incident Selected</h3>
+        <p style="font-size:0.85rem; max-width:400px; margin:0 auto;">Select an alert from the live stream or trigger a controlled simulation workflow to begin deep forensic investigation.</p>
+      </div>
+
+      <div id="active-incident-details" style="display:none; flex-direction:column; gap:20px;">
+        
+        <!-- Hero Header -->
+        <div class="incident-hero">
+          <div class="hero-info">
+            <h2 id="wb-title">SSH Authentication Failure / Brute-Force Attack</h2>
+            <div class="hero-meta">
+              <span>Incident ID: <strong id="wb-id" style="color:var(--accent-cyan);">--</strong></span>
+              <span>•</span>
+              <span id="wb-timestamp">--</span>
+              <span>•</span>
+              <span id="wb-source-badge" class="source-tag tag-wazuh">WAZUH</span>
+              <span>•</span>
+              <span>Status: <strong id="wb-status" style="color:var(--accent-emerald);">CONTAINED</strong></span>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn-action" id="btn-export-report">
+              <span>📄</span> Export Incident Report (.md)
+            </button>
+          </div>
+        </div>
+
+        <!-- 2-Column Quadrants -->
+        <div class="wb-grid">
+          
+          <!-- Quadrant 1: Deterministic Risk Engine -->
+          <div class="wb-card">
+            <div class="wb-card-title">
+              <span>⚖️</span> Deterministic Risk Assessment (Section 9)
+            </div>
+            <div class="risk-meter-wrapper">
+              <div class="risk-circle" id="wb-risk-circle">
+                <span class="risk-num" id="wb-risk-score">85</span>
+                <span class="risk-label" id="wb-risk-sev">CRITICAL</span>
+              </div>
+              <div class="risk-explanation" id="wb-risk-explanation">
+                Assigned risk score based on deterministic evidence.
+              </div>
+            </div>
+
+            <table class="factors-table">
+              <thead>
+                <tr>
+                  <th>Contributing Evidence Factor</th>
+                  <th style="text-align:right;">Points</th>
+                </tr>
+              </thead>
+              <tbody id="wb-factors-tbody">
+                <!-- Dynamically filled -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Quadrant 2: AI Tier-2 Threat Analyst Investigation -->
+          <div class="wb-card">
+            <div class="wb-card-title">
+              <span>🤖</span> AI Threat Intelligence Investigation (Section 10)
+            </div>
+            
+            <div class="ai-summary-box" id="wb-ai-summary">
+              Automated credential brute-force attack detected from source IP targeting root account.
+            </div>
+
+            <div class="ai-meta-list">
+              <div class="ai-meta-item">
+                <span class="ai-meta-label">Attack Classification & MITRE ATT&CK:</span>
+                <span class="ai-meta-val" id="wb-ai-mitre" style="color:var(--accent-cyan);">T1110.001 - Brute Force</span>
+              </div>
+              <div class="ai-meta-item">
+                <span class="ai-meta-label">Evidence Reasoning:</span>
+                <span class="ai-meta-val" id="wb-ai-reasoning" style="font-size:0.78rem;">--</span>
+              </div>
+              <div class="ai-meta-item">
+                <span class="ai-meta-label">Recommended Response Action:</span>
+                <span class="ai-meta-val" id="wb-ai-action" style="color:var(--accent-emerald); font-size:0.78rem;">--</span>
+              </div>
+              <div style="font-size:0.68rem; color:var(--text-muted); margin-top:4px;">
+                <em>Principle: AI recommendations are advisory. Containment actions are governed by deterministic policies.</em>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quadrant 3: Threat Intelligence Dossier -->
+          <div class="wb-card">
+            <div class="wb-card-title">
+              <span>🌐</span> Threat Intelligence Enrichment (AbuseIPDB)
+            </div>
+            <div id="wb-intel-content">
+              <div class="intel-row">
+                <span class="intel-label">Source Indicator:</span>
+                <span class="intel-val" id="wb-intel-ip">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Abuse Confidence Score:</span>
+                <span class="intel-val" id="wb-intel-score" style="color:var(--accent-crimson); font-weight:700;">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">ISP & ASN:</span>
+                <span class="intel-val" id="wb-intel-isp">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Origin Location:</span>
+                <span class="intel-val" id="wb-intel-geo">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Historical Reports:</span>
+                <span class="intel-val" id="wb-intel-reports">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Threat Classification Tags:</span>
+                <span class="intel-val" id="wb-intel-tags">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quadrant 4: Autonomous Response & Firewall Action -->
+          <div class="wb-card">
+            <div class="wb-card-title">
+              <span>🛡️</span> Autonomous Response Action (Module 7)
+            </div>
+            <div id="wb-response-content">
+              <div class="intel-row">
+                <span class="intel-label">Action Taken:</span>
+                <span class="intel-val" id="wb-resp-action" style="color:var(--accent-emerald); font-weight:700;">UFW_BLOCK</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Target IP:</span>
+                <span class="intel-val" id="wb-resp-ip">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Execution Status:</span>
+                <span class="intel-val" id="wb-resp-status">SUCCESS</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Policy Rule Applied:</span>
+                <span class="intel-val" id="wb-resp-rule">--</span>
+              </div>
+              <div class="intel-row">
+                <span class="intel-label">Temporary TTL Duration:</span>
+                <span class="intel-val" id="wb-resp-ttl">300 seconds</span>
+              </div>
+              <div style="margin-top:14px; display:flex; gap:10px;">
+                <button class="btn-action" id="btn-unblock-target" style="border-color:var(--accent-amber); color:var(--accent-amber);">
+                  <span>🔓</span> Unblock IP Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Raw Telemetry Drawer -->
+        <div class="wb-card">
+          <div class="wb-card-title">
+            <span>📝</span> Raw Sensor Log & Rule Information
+          </div>
+          <pre id="wb-raw-log" style="background:#090e1a; padding:12px; border-radius:6px; font-family:var(--font-mono); font-size:0.75rem; color:#94a3b8; overflow-x:auto;">--</pre>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Viva Defense Guide -->
+  <div class="modal-overlay" id="modal-viva">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🎓 Final Year Project Viva Preparation Guide</h3>
+        <button class="btn-close-modal" id="btn-close-viva">&times;</button>
+      </div>
+      <div class="modal-body" id="viva-questions-list">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Manual Event Ingest -->
+  <div class="modal-overlay" id="modal-ingest">
+    <div class="modal-content" style="max-width:650px;">
+      <div class="modal-header">
+        <h3>📥 Ingest Security Event</h3>
+        <button class="btn-close-modal" id="btn-close-ingest">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px;">
+          Paste raw Wazuh JSON alert, Suricata EVE event, or /var/log/auth.log line:
+        </p>
+        <textarea id="ingest-textarea" rows="8" style="width:100%; background:#090e1a; border:1px solid var(--border-color); border-radius:6px; color:#ffffff; font-family:var(--font-mono); font-size:0.8rem; padding:10px; outline:none;" placeholder='{"rule": {"id": "5712", "level": 10, "description": "SSH Brute Force"}, "data": {"srcip": "198.51.100.42", "dstuser": "root"}}'></textarea>
+        <div style="margin-top:14px; display:flex; justify-content:flex-end; gap:10px;">
+          <button class="btn-action" id="btn-submit-sample-auth">Load Auth.log Sample</button>
+          <button class="btn-action btn-action-primary" id="btn-submit-ingest">Process Event</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Firewall Manager -->
+  <div class="modal-overlay" id="modal-firewall">
+    <div class="modal-content" style="max-width:750px;">
+      <div class="modal-header">
+        <h3>🔥 Active Firewall Blocks & Defense Controls</h3>
+        <button class="btn-close-modal" id="btn-close-firewall">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="font-size:0.82rem; color:var(--text-secondary);">
+            Controlled automated temporary IP blocking via UFW with automatic TTL expiry.
+          </div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="manual-block-ip" placeholder="e.g. 198.51.100.55" style="background:#090e1a; border:1px solid var(--border-color); color:#fff; padding:6px 10px; border-radius:4px; font-size:0.8rem;">
+            <button class="btn-action" id="btn-manual-block-submit" style="border-color:var(--accent-crimson); color:var(--accent-crimson);">Block IP</button>
+          </div>
+        </div>
+
+        <table class="factors-table">
+          <thead>
+            <tr>
+              <th>Target IP</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Expires In</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="firewall-table-tbody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

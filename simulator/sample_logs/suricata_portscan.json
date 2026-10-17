@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-15T00:32:40.128491+0000",
+  "flow_id": 14920481029482,
+  "in_iface": "eth0",
+  "event_type": "alert",
+  "src_ip": "45.33.32.156",
+  "src_port": 54210,
+  "dest_ip": "192.168.1.100",
+  "dest_port": 80,
+  "proto": "TCP",
+  "alert": {
+    "action": "allowed",
+    "gid": 1,
+    "signature_id": 2000537,
+    "rev": 1,
+    "signature": "ET SCAN Potential Nmap SYN Port Scan Detected",
+    "category": "Attempted Information Leak",
+    "severity": 2
+  },
+  "payload_printable": "SYN TCP scan packet sequence probe"
+}

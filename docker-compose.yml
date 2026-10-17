@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  soc-engine:
+    build: .
+    container_name: ai_soc_engine
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV_MODE=production
+      - FIREWALL_MODE=simulation
+      - AUTO_RESPONSE_ENABLED=True
+      - MIN_SEVERITY_AUTO_BLOCK=HIGH
+      - LLM_PROVIDER=mock
+      - MOCK_THREAT_INTEL=True
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
