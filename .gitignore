@@ -105,5 +105,7 @@ id_rsa.pub
 # Local binaries and dynamic URLs
 bin/
 LIVE_PUBLIC_URL.txt
+ai-soc/
+
 
 
